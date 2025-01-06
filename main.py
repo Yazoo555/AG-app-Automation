@@ -139,9 +139,10 @@ def login(driver):
         if not tap_element(driver, proceed_button):
             raise Exception("Failed to tap Proceed button")
         logging.info("Proceed button tapped")
+        return True
     except Exception as e:
         logging.error(f"Login failed: {str(e)}")
-        raise
+        return False
 
 def enter_otp(driver):
     try:
@@ -151,10 +152,9 @@ def enter_otp(driver):
         time.sleep(1)
         otp_input.clear()
         
-        # Enter each digit of the OTP individually
         for digit in OTP:
             otp_input.send_keys(digit)
-            time.sleep(0.5)  # Short pause between digits
+            time.sleep(0.5)
         
         logging.info(f"OTP '{OTP}' input successful")
 
@@ -162,22 +162,7 @@ def enter_otp(driver):
         if not tap_element(driver, confirm_button):
             raise Exception("Failed to tap Confirm Now button")
         logging.info("Confirm Now button tapped")
-
-        # Wait and check for potential error messages
-        time.sleep(5)
-        error_message_locator = (AppiumBy.XPATH, "//android.view.View[contains(@content-desc, 'Invalid OTP')]")
-        if check_element_exists(driver, error_message_locator, timeout=3):
-            logging.warning("Invalid OTP message detected")
-            return False
-
-        # Wait for the home screen to appear
-        if is_on_home_screen(driver):
-            logging.info("Successfully reached home screen after OTP confirmation")
-            return True
-        else:
-            logging.warning("Failed to reach home screen after OTP confirmation")
-            return False
-
+        return True
     except Exception as e:
         logging.error(f"OTP entry failed: {str(e)}")
         return False
@@ -240,38 +225,44 @@ def run_automation():
     try:
         driver = setup_driver()
         
+        if not is_on_login_screen(driver):
+            logging.info("Already logged in. Proceeding to check for OTP or home screen.")
+        else:
+            logging.info("On login screen. Performing login.")
+            if not login(driver):
+                raise Exception("Login failed. Aborting automation.")
+        
+        # Wait for a moment to let the screen transition
+        time.sleep(5)
+        
+        if is_on_otp_screen(driver):
+            logging.info("OTP screen detected. Entering OTP.")
+            if not enter_otp(driver):
+                raise Exception("OTP entry failed. Aborting automation.")
+            # Wait for a moment after OTP entry
+            time.sleep(5)
+        else:
+            logging.info("No OTP screen detected. Proceeding to check for popup.")
+        
+        # Handle popup (if present)
+        handle_popup(driver)
+        
+        # Check for home screen (profile icon)
         max_attempts = 3
         for attempt in range(max_attempts):
-            if is_on_login_screen(driver):
-                logging.info("On login screen. Performing login.")
-                login(driver)
-                time.sleep(5)  # Wait for OTP screen to load
-            
-            if is_on_otp_screen(driver):
-                logging.info(f"On OTP screen. Entering OTP. Attempt {attempt + 1}")
-                if enter_otp(driver):
-                    logging.info("OTP entered successfully")
-                    break
-                else:
-                    logging.warning(f"OTP entry failed. Attempt {attempt + 1}")
-            
             if is_on_home_screen(driver):
                 logging.info("Successfully reached home screen.")
                 break
-            
-            if attempt == max_attempts - 1:
+            elif attempt < max_attempts - 1:
+                logging.warning(f"Home screen not detected. Attempt {attempt + 1} of {max_attempts}. Retrying...")
+                time.sleep(5)
+            else:
                 raise Exception("Failed to reach home screen after maximum attempts")
-            
-            logging.warning(f"Attempt {attempt + 1} failed. Retrying...")
-            time.sleep(5)
         
-        handle_popup(driver)
+        # Perform scroll and like actions
+        perform_scroll_and_like(driver)
+        logging.info("Automation completed successfully")
         
-        if is_on_home_screen(driver):
-            perform_scroll_and_like(driver)
-            logging.info("Automation completed successfully")
-        else:
-            logging.error("Home screen not found after login/OTP/popup handling. Aborting automation.")
     except Exception as e:
         logging.error(f"An error occurred during automation: {str(e)}")
     finally:
@@ -281,3 +272,4 @@ def run_automation():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     run_automation()
+
