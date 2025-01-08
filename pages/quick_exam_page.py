@@ -183,4 +183,3 @@ class QuickExamPage(BasePage):
         except Exception as e:
             logging.error(f"Error clicking Done button: {str(e)}")
             return False
-

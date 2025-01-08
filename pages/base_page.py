@@ -25,4 +25,3 @@ class BasePage:
     POPUP_SUBMIT_BUTTON_LOCATOR = (AppiumBy.XPATH, "//android.view.View[@content-desc='Submit' and @bounds='[369,1050][545,1121]']")
     DONE_BUTTON_LOCATOR = (AppiumBy.XPATH, "//android.view.View[@content-desc='Done' and @bounds='[576,109][687,163]']")
     QUICK_EXAM_LOCATOR = (AppiumBy.XPATH, "//android.widget.ImageView[@content-desc='Quick' and @bounds='[217,192][285,318]']")
-

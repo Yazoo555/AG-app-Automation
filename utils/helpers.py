@@ -64,4 +64,3 @@ def check_element_exists(driver, locator, timeout=WAIT_TIMEOUT):
         return True
     except (TimeoutException, NoSuchElementException):
         return False
-

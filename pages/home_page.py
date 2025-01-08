@@ -99,4 +99,3 @@ class HomePage(BasePage):
         except Exception as e:
             logging.error(f"Error navigating to Quick exam type: {str(e)}")
             return False
-

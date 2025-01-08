@@ -48,24 +48,19 @@ def run_automation():
         if not chapterwise_test_page.select_all_checkboxes():
             raise Exception("Failed to select all checkboxes in Chapterwise test")
         
-        if not chapterwise_test_page.enter_number_of_questions(100):
-            raise Exception("Failed to enter number of questions")
+        if not chapterwise_test_page.enter_number_of_questions(30):
+            raise Exception("Failed to enter number of questions and tap coordinates for Chapterwise test")
         
         if not chapterwise_test_page.click_start_button():
             raise Exception("Failed to click Start button")
         
-        if not chapterwise_test_page.answer_multiple_questions(option_a_count=40, option_b_count=30, option_c_count=30):
-            raise Exception("Failed to answer multiple questions")
-        
-        if not chapterwise_test_page.submit_test():
-            raise Exception("Failed to submit the test")
-        
-        if not chapterwise_test_page.handle_popup_submit():
-            raise Exception("Failed to handle popup submit")
+        if not chapterwise_test_page.answer_multiple_questions():
+            raise Exception("Failed to answer multiple questions, submit test, and handle popup in Chapterwise test")
         
         if not chapterwise_test_page.click_done_button():
             raise Exception("Failed to click Done button")
         
+
         # Quick Exam
         if home_page.is_on_test_tab_screen():
             logging.info("On Test tab screen. Navigating to Quick exam type.")
@@ -79,13 +74,13 @@ def run_automation():
         if not quick_exam_page.select_all_checkboxes():
             raise Exception("Failed to select all checkboxes in Quick exam")
         
-        if not quick_exam_page.enter_number_of_questions(100):
+        if not quick_exam_page.enter_number_of_questions():
             raise Exception("Failed to enter number of questions for Quick exam")
         
         if not quick_exam_page.click_start_button():
             raise Exception("Failed to click Start button for Quick exam")
         
-        if not quick_exam_page.answer_multiple_questions(option_a_count=40, option_b_count=30, option_c_count=30):
+        if not quick_exam_page.answer_multiple_questions():
             raise Exception("Failed to answer multiple questions in Quick exam")
         
         if not quick_exam_page.submit_test():

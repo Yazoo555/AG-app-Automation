@@ -18,4 +18,3 @@ def setup_driver():
     options.connect_hardware_keyboard = True
     
     return webdriver.Remote("http://localhost:4723", options=options)
-

@@ -31,4 +31,3 @@ class OTPPage(BasePage):
     def is_on_otp_screen(self):
         from utils.helpers import check_element_exists
         return check_element_exists(self.driver, self.OTP_INPUT_LOCATOR, timeout=5)
-
