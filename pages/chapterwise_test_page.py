@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, TimeoutException
 from utils.helpers import tap_element, wait_for_element, perform_touch_action
 from pages.base_page import BasePage
+from appium.webdriver.common.appiumby import AppiumBy
 
 class ChapterwiseTestPage(BasePage):
     def select_all_checkboxes(self):
@@ -187,22 +188,28 @@ class ChapterwiseTestPage(BasePage):
         return True
 
     def submit_test(self):
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                submit_button = wait_for_element(self.driver, self.SUBMIT_BUTTON_LOCATOR, timeout=20)
-                if tap_element(self.driver, submit_button):
-                    logging.info("Successfully clicked the Submit button")
-                    return True
-                else:
-                    logging.warning(f"Failed to click the Submit button. Attempt {attempt + 1} of {max_retries}")
-            except Exception as e:
-                logging.warning(f"Error clicking Submit button: {str(e)}. Attempt {attempt + 1} of {max_retries}")
-            
-            if attempt < max_retries - 1:
-                time.sleep(2)  # Wait before retrying
+        max_attempts = 3
+        submit_locators = [
+            (AppiumBy.XPATH, "//android.view.View[@content-desc='Submit' and @bounds='[18,1408][702,1462]']"),
+            (AppiumBy.XPATH, "//android.view.View[@content-desc='Submit' and @bounds='[560,93][683,147]']"),
+            (AppiumBy.XPATH, "//android.view.View[@content-desc='Submit']")
+        ]
+    
+        for attempt in range(max_attempts):
+            for locator in submit_locators:
+                try:
+                    submit_button = wait_for_element(self.driver, locator, timeout=5)
+                    if tap_element(self.driver, submit_button):
+                        logging.info(f"Successfully clicked the Submit button (Attempt {attempt + 1})")
+                        return True
+                except Exception as e:
+                    logging.warning(f"Failed to find or click Submit button with locator {locator}. Error: {str(e)}")
         
-        logging.error(f"Failed to submit test after {max_retries} attempts")
+            if attempt < max_attempts - 1:
+                logging.info(f"Retrying submit... (Attempt {attempt + 1})")
+                time.sleep(2)
+    
+        logging.error("Failed to submit the test after multiple attempts")
         return False
 
     def handle_popup_submit(self):

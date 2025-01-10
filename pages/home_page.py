@@ -72,17 +72,25 @@ class HomePage(BasePage):
             return False
 
     def navigate_to_chapterwise_test(self):
-        try:
-            chapterwise_test = wait_for_element(self.driver, self.CHAPTERWISE_TEST_LOCATOR)
-            if tap_element(self.driver, chapterwise_test):
-                logging.info("Successfully navigated to Chapterwise test section")
-                return True
-            else:
-                logging.error("Failed to tap Chapterwise test")
-                return False
-        except Exception as e:
-            logging.error(f"Error navigating to Chapterwise test section: {str(e)}")
-            return False
+        max_attempts = 3
+        for attempt in range(max_attempts):
+            try:
+                chapterwise_test = wait_for_element(self.driver, self.CHAPTERWISE_TEST_LOCATOR, timeout=10)
+                if tap_element(self.driver, chapterwise_test):
+                    logging.info("Successfully navigated to Chapterwise test section")
+                    return True
+                else:
+                    logging.warning(f"Failed to tap Chapterwise test. Attempt {attempt + 1} of {max_attempts}")
+            except Exception as e:
+                logging.warning(f"Error navigating to Chapterwise test section: {str(e)}. Attempt {attempt + 1} of {max_attempts}")
+            
+            if attempt < max_attempts - 1:
+                logging.info("Attempting to refresh the Test tab")
+                self.refresh_test_tab()
+                time.sleep(2)
+    
+        logging.error("Failed to navigate to Chapterwise test section after multiple attempts")
+        return False
 
     def is_on_test_tab_screen(self):
         return check_element_exists(self.driver, self.TEST_TAB_LOCATOR, timeout=5)
@@ -99,3 +107,19 @@ class HomePage(BasePage):
         except Exception as e:
             logging.error(f"Error navigating to Quick exam type: {str(e)}")
             return False
+
+    def refresh_test_tab(self):
+        try:
+            # Attempt to tap on another tab (e.g., Home tab) and then back to Test tab
+            home_tab = wait_for_element(self.driver, self.HOME_TAB_LOCATOR, timeout=5)
+            if tap_element(self.driver, home_tab):
+                logging.info("Tapped Home tab for refreshing")
+                time.sleep(1)
+                test_tab = wait_for_element(self.driver, self.TEST_TAB_LOCATOR, timeout=5)
+                if tap_element(self.driver, test_tab):
+                    logging.info("Tapped Test tab again after refreshing")
+                    return True
+        except Exception as e:
+            logging.error(f"Error refreshing Test tab: {str(e)}")
+        return False
+

@@ -37,9 +37,10 @@ class QuickExamPage(BasePage):
             logging.error(f"Error clicking checkbox at {locator}: {str(e)}")
             return False
 
-    def enter_number_of_questions(self, number):
+    def enter_number_of_questions(self, number=30):
         try:
-            input_field = wait_for_element(self.driver, self.NUMBER_INPUT_LOCATOR)
+            # Locate the input field using the provided coordinates
+            input_field = self.driver.find_element_by_xpath("//android.widget.EditText[@bounds='[37,961][683,1065]']")
             
             if not tap_element(self.driver, input_field):
                 logging.error("Failed to tap the input field")
@@ -52,6 +53,9 @@ class QuickExamPage(BasePage):
             
             input_field.send_keys(str(number))
             logging.info(f"Successfully entered {number} into the input field")
+            
+            # Hide keyboard after entering the number
+            self.driver.hide_keyboard()
             
             return True
         except Exception as e:
@@ -109,8 +113,8 @@ class QuickExamPage(BasePage):
             logging.error(f"Error waiting for next question: {str(e)}")
             return False
 
-    def answer_multiple_questions(self, option_a_count=40, option_b_count=30, option_c_count=30):
-        total_questions = option_a_count + option_b_count + option_c_count
+    def answer_multiple_questions(self):
+        total_questions = 30
         for i in range(total_questions):
             logging.info(f"Attempting to answer question {i+1}")
             
@@ -118,16 +122,16 @@ class QuickExamPage(BasePage):
                 logging.error(f"Question {i+1} did not load. Stopping.")
                 return False
 
-            if i < option_a_count:
+            if i < 10:
                 option_locator = self.ANSWER_OPTION_A_LOCATOR
-            elif i < option_a_count + option_b_count:
+            elif i < 20:
                 option_locator = self.ANSWER_OPTION_B_LOCATOR
             else:
                 option_locator = self.ANSWER_OPTION_C_LOCATOR
-            
+        
             if not self.click_answer_option(option_locator):
                 logging.error(f"Failed to click answer for question {i+1}. Attempting to scroll.")
-                
+            
                 if self.scroll_up():
                     time.sleep(1)
                     if not self.click_answer_option(option_locator):
@@ -183,3 +187,4 @@ class QuickExamPage(BasePage):
         except Exception as e:
             logging.error(f"Error clicking Done button: {str(e)}")
             return False
+

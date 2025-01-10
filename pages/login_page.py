@@ -27,3 +27,4 @@ class LoginPage(BasePage):
     def is_on_login_screen(self):
         from utils.helpers import check_element_exists
         return check_element_exists(self.driver, self.PHONE_INPUT_LOCATOR, timeout=5)
+
