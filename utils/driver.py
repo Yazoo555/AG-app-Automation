@@ -11,10 +11,11 @@ def setup_driver():
     options.app_activity = "com.agnepal.ambitionguru.MainActivity"  # Update this if different
     options.no_reset = True
     options.automation_name = "UiAutomator2"
-    options.app_wait_duration = 30000
+    options.app_wait_duration = 60000  # Increased from 30000 to 60000
     options.ensure_webviews_have_pages = True
     options.native_web_screenshot = True
-    options.new_command_timeout = 3600
+    options.new_command_timeout = 7200  # Increased from 3600 to 7200
     options.connect_hardware_keyboard = True
     
     return webdriver.Remote("http://localhost:4723", options=options)
+
